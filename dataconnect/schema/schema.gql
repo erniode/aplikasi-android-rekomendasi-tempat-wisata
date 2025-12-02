@@ -1,0 +1,42 @@
+type User @table {
+  username: String!
+  email: String!
+  createdAt: Timestamp!
+  displayName: String
+  photoUrl: String
+}
+
+type Category @table {
+  name: String!
+  createdAt: Timestamp!
+  description: String
+}
+
+type Destination @table {
+  name: String!
+  description: String!
+  locationLatitude: Float!
+  locationLongitude: Float!
+  createdAt: Timestamp!
+  address: String
+  imageUrl: String
+  contactInfo: String
+  category: Category
+}
+
+type Visit @table {
+  visitDate: Date!
+  createdAt: Timestamp!
+  notes: String
+  user: User
+  destination: Destination
+}
+
+type Review @table {
+  rating: Int!
+  createdAt: Timestamp!
+  comment: String
+  user: User
+  destination: Destination
+  visit: Visit
+}

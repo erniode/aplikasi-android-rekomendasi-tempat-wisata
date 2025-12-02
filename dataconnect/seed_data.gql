@@ -1,0 +1,84 @@
+mutation CreateSeedData @auth(level: PUBLIC, insecureReason: "This operation is safe to expose to the public") @transaction {
+  category_insertMany(data: [
+    {
+      id: "550e8400-e29b-41d4-a716-446655440000",
+      name: "Nature",
+      description: "Beautiful natural landscapes"
+      createdAt: "2024-04-26T10:00:00Z"
+    },
+    {
+      id: "550e8400-e29b-41d4-a716-446655440001",
+      name: "Historical",
+      description: "Sites of historical significance"
+      createdAt: "2024-04-26T10:00:00Z"
+    }
+  ])
+  user_insertMany(data: [
+    {
+      id: "660e8400-e29b-41d4-a716-446655440000"
+      username: "user1",
+      email: "user1@example.com",
+      createdAt: "2024-04-26T10:00:00Z"
+    },
+    {
+      id: "660e8400-e29b-41d4-a716-446655440001"
+      username: "user2",
+      email: "user2@example.com",
+      createdAt: "2024-04-26T10:00:00Z"
+    }
+  ])
+  destination_insertMany(data: [
+    {
+      id: "770e8400-e29b-41d4-a716-446655440000",
+      categoryId: "550e8400-e29b-41d4-a716-446655440000",
+      name: "Beach A",
+      description: "Pristine beach with white sand",
+      locationLatitude: -3.745,
+      locationLongitude: 128.177,
+      createdAt: "2024-04-26T10:00:00Z"
+    },
+    {
+      id: "770e8400-e29b-41d4-a716-446655440001",
+      categoryId: "550e8400-e29b-41d4-a716-446655440001",
+      name: "Fort B",
+      description: "Old fortress overlooking the sea",
+      locationLatitude: -3.746,
+      locationLongitude: 128.178,
+      createdAt: "2024-04-26T10:00:00Z"
+    }
+  ])
+  visit_insertMany(data: [
+    {
+      id: "880e8400-e29b-41d4-a716-446655440000",
+      destinationId: "770e8400-e29b-41d4-a716-446655440000",
+      userId: "660e8400-e29b-41d4-a716-446655440000",
+      visitDate: "2024-04-28",
+      createdAt: "2024-04-27T10:00:00Z"
+    },
+    {
+      id: "880e8400-e29b-41d4-a716-446655440001",
+      destinationId: "770e8400-e29b-41d4-a716-446655440001",
+      userId: "660e8400-e29b-41d4-a716-446655440001",
+      visitDate: "2024-04-29",
+      createdAt: "2024-04-27T10:00:00Z"
+    }
+  ])
+  review_insertMany(data: [
+    {
+      destinationId: "770e8400-e29b-41d4-a716-446655440000",
+      userId: "660e8400-e29b-41d4-a716-446655440000",
+      visitId: "880e8400-e29b-41d4-a716-446655440000",
+      comment: "Great experience!",
+      rating: 5,
+      createdAt: "2024-04-29T10:00:00Z"
+    },
+    {
+      destinationId: "770e8400-e29b-41d4-a716-446655440001",
+      userId: "660e8400-e29b-41d4-a716-446655440001",
+      visitId: "880e8400-e29b-41d4-a716-446655440001",
+      comment: "Interesting historical site",
+      rating: 4,
+      createdAt: "2024-04-30T10:00:00Z"
+    }
+  ])
+}

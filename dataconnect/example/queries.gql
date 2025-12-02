@@ -1,0 +1,25 @@
+mutation AddNewVisit($destinationId: UUID!, $userId: UUID!, $visitDate: Date!) @auth(level: USER) {
+  visit_insert(data: { destinationId: $destinationId, userId: $userId, visitDate: $visitDate, createdAt_expr: "request.time" })
+}
+
+query GetDestinationByName($name: String!) @auth(level: PUBLIC, insecureReason: "This query is safe to expose to the public") {
+  destinations(where: { name: { eq: $name } }) {
+    id
+    name
+    description
+    locationLatitude
+    locationLongitude
+  }
+}
+
+mutation UpdateReview($id: UUID!, $comment: String, $rating: Int) @auth(level: USER) {
+  review_update(id: $id, data: { comment: $comment, rating: $rating })
+}
+
+query ListCategories @auth(level: PUBLIC, insecureReason: "This query is safe to expose to the public") {
+  categories {
+    id
+    name
+    description
+  }
+}
