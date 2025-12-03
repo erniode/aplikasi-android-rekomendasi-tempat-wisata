@@ -1,64 +1,71 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../models/user.dart';
 
 class AuthProvider extends ChangeNotifier {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
   UserModel? _user;
 
   UserModel? get user => _user;
-  bool get isLoggedIn => _user != null;
+  bool get isLoggedIn => _auth.currentUser != null;
 
   // -------------------------
-  // LOGIN
+  // LOGIN (Firebase)
   // -------------------------
   Future<bool> login(String username, String password) async {
-    // simulasi backend
-    await Future.delayed(const Duration(milliseconds: 500));
+    try {
+      // Firebase memakai email untuk username
+      final result = await _auth.signInWithEmailAndPassword(
+        email: username.trim(),
+        password: password.trim(),
+      );
 
-    if ((username == 'user' && password == 'pass123') ||
-        (username == 'admin' && password == 'admin')) {
-      _user = UserModel(id: 1, username: username, password: password);
-
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool('logged_in', true);
-      await prefs.setString('username', username);
+      // Buat local user model
+      _user = UserModel(
+        id: result.user?.uid.hashCode ?? 0,
+        username: result.user?.email ?? username,
+        password: '', // tidak menyimpan password
+      );
 
       notifyListeners();
       return true;
-    }
-    return false;
-  }
-
-  // -------------------------
-  // REGISTER
-  // -------------------------
-  Future<bool> register(String username, String password) async {
-    await Future.delayed(const Duration(milliseconds: 500));
-
-    // Validasi contoh (backend dummy)
-    if (username.length < 3 || password.length < 3) {
+    } on FirebaseAuthException catch (e) {
+      debugPrint("LOGIN ERROR: ${e.message}");
       return false;
     }
-
-    // Simulasi akun baru
-    _user = UserModel(id: 2, username: username, password: password);
-
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('logged_in', true);
-    await prefs.setString('username', username);
-
-    notifyListeners();
-    return true;
   }
 
   // -------------------------
-  // LOGOUT
+  // REGISTER (Firebase)
+  // -------------------------
+  Future<bool> register(String username, String password) async {
+    try {
+      final result = await _auth.createUserWithEmailAndPassword(
+        email: username.trim(),
+        password: password.trim(),
+      );
+
+      _user = UserModel(
+        id: result.user?.uid.hashCode ?? 0,
+        username: result.user?.email ?? username,
+        password: '',
+      );
+
+      notifyListeners();
+      return true;
+    } on FirebaseAuthException catch (e) {
+      debugPrint("REGISTER ERROR: ${e.message}");
+      return false;
+    }
+  }
+
+  // -------------------------
+  // LOGOUT (Firebase)
   // -------------------------
   Future<void> logout() async {
+    await _auth.signOut();
     _user = null;
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('logged_in');
-    await prefs.remove('username');
     notifyListeners();
   }
 
@@ -66,15 +73,13 @@ class AuthProvider extends ChangeNotifier {
   // AUTO LOGIN
   // -------------------------
   Future<void> tryAutoLogin() async {
-    final prefs = await SharedPreferences.getInstance();
-    final logged = prefs.getBool('logged_in') ?? false;
+    final current = _auth.currentUser;
 
-    if (logged) {
-      final username = prefs.getString('username') ?? 'user';
+    if (current != null) {
       _user = UserModel(
-        id: 1,
-        username: username,
-        password: '', // password tidak disimpan demi keamanan
+        id: current.uid.hashCode,
+        username: current.email ?? '',
+        password: '',
       );
       notifyListeners();
     }
