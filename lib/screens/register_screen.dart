@@ -4,6 +4,7 @@ import '../providers/auth_provider.dart';
 
 class RegisterScreen extends StatefulWidget {
   static const routeName = '/register';
+
   const RegisterScreen({super.key});
 
   @override
@@ -14,38 +15,31 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
   String _username = '';
   String _password = '';
-  String _confirmPassword = '';
+  String _confirmPass = '';
   bool _loading = false;
 
-  void _submitRegistration(AuthProvider auth) async {
+  void _submitRegister(AuthProvider auth) async {
     if (!_formKey.currentState!.validate()) return;
     _formKey.currentState!.save();
 
-    if (_password != _confirmPassword) {
+    if (_password != _confirmPass) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Password tidak cocok!')),
+        const SnackBar(content: Text("Password tidak sama.")),
       );
       return;
     }
 
     setState(() => _loading = true);
-
-    // Default role adalah 'user'
-    final ok = await auth.register(
-      _username,
-      _password,
-    );
-
+    final ok = await auth.register(_username, _password);
     setState(() => _loading = false);
 
-    if (ok) {
-      // Jika berhasil mendaftar, kembali ke layar sebelumnya (Login/Home)
-      if (Navigator.canPop(context)) Navigator.pop(context);
+    if (ok && mounted) {
+      Navigator.pop(context);
     } else {
-      // Tampilkan pesan error dari AuthProvider (misalnya: username sudah digunakan)
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-            content: Text('Pendaftaran gagal. Cek kredensial Anda.')),
+          content: Text("Gagal mendaftar. Silakan coba lagi."),
+        ),
       );
     }
   }
@@ -53,65 +47,127 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     final auth = Provider.of<AuthProvider>(context);
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Buat Akun Baru')),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Form(
-            key: _formKey,
+      body: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 24),
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Colors.white,
+              Color.fromARGB(255, 201, 155, 75),
+            ],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        child: Center(
+          child: SingleChildScrollView(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const SizedBox(height: 20),
-                TextFormField(
-                  decoration: const InputDecoration(
-                    labelText: 'Username',
-                    border: OutlineInputBorder(),
-                  ),
-                  onSaved: (v) => _username = v ?? '',
-                  validator: (v) =>
-                      (v == null || v.isEmpty) ? 'Masukkan username' : null,
-                ),
-                const SizedBox(height: 15),
-                TextFormField(
-                  decoration: const InputDecoration(
-                    labelText: 'Password',
-                    border: OutlineInputBorder(),
-                  ),
-                  obscureText: true,
-                  onSaved: (v) => _password = v ?? '',
-                  validator: (v) => (v == null || v.length < 6)
-                      ? 'Password minimal 6 karakter'
-                      : null,
-                ),
-                const SizedBox(height: 15),
-                TextFormField(
-                  decoration: const InputDecoration(
-                    labelText: 'Konfirmasi Password',
-                    border: OutlineInputBorder(),
-                  ),
-                  obscureText: true,
-                  onSaved: (v) => _confirmPassword = v ?? '',
-                  validator: (v) => (v == null || v.isEmpty)
-                      ? 'Masukkan konfirmasi password'
-                      : null,
-                ),
                 const SizedBox(height: 30),
-                _loading
-                    ? const Center(child: CircularProgressIndicator())
-                    : ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 15),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8)),
-                        ),
-                        onPressed: () => _submitRegistration(auth),
-                        child: const Text(
-                          'Daftar',
-                          style: TextStyle(fontSize: 16),
-                        ),
+
+                /// 👤 ICON BULAT
+                const CircleAvatar(
+                  radius: 45,
+                  backgroundColor: Colors.white,
+                  child: Icon(
+                    Icons.person_add,
+                    size: 50,
+                    color: Colors.orange,
+                  ),
+                ),
+
+                const SizedBox(height: 25),
+
+                /// 📦 CARD REGISTER FORM
+                Card(
+                  elevation: 8,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        children: [
+                          TextFormField(
+                            decoration: const InputDecoration(
+                              labelText: 'Username',
+                              prefixIcon: Icon(Icons.person),
+                              border: OutlineInputBorder(),
+                            ),
+                            onSaved: (v) => _username = v ?? '',
+                            validator: (v) => (v == null || v.isEmpty)
+                                ? 'Masukkan username'
+                                : null,
+                          ),
+                          const SizedBox(height: 15),
+                          TextFormField(
+                            decoration: const InputDecoration(
+                              labelText: 'Password',
+                              prefixIcon: Icon(Icons.lock),
+                              border: OutlineInputBorder(),
+                            ),
+                            obscureText: true,
+                            onSaved: (v) => _password = v ?? '',
+                            validator: (v) => (v == null || v.isEmpty)
+                                ? 'Masukkan password'
+                                : null,
+                          ),
+                          const SizedBox(height: 15),
+                          TextFormField(
+                            decoration: const InputDecoration(
+                              labelText: 'Konfirmasi Password',
+                              prefixIcon: Icon(Icons.lock_outline),
+                              border: OutlineInputBorder(),
+                            ),
+                            obscureText: true,
+                            onSaved: (v) => _confirmPass = v ?? '',
+                            validator: (v) => (v == null || v.isEmpty)
+                                ? 'Masukkan konfirmasi password'
+                                : null,
+                          ),
+                          const SizedBox(height: 25),
+                          _loading
+                              ? const CircularProgressIndicator()
+                              : ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    minimumSize:
+                                        const Size(double.infinity, 50),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                  ),
+                                  onPressed: () => _submitRegister(auth),
+                                  child: const Text(
+                                    'Daftar',
+                                    style: TextStyle(fontSize: 16),
+                                  ),
+                                ),
+                        ],
                       ),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 25),
+
+                /// 🔗 LINK KEMBALI KE LOGIN
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text(
+                    "Sudah punya akun? Login",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 14,
+                      decoration: TextDecoration.underline,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 40),
               ],
             ),
           ),

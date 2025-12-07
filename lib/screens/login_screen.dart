@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
-import 'register_screen.dart'; // Import layar register
+import 'register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   static const routeName = '/login';
@@ -13,7 +13,7 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  String _username = ''; // Dalam implementasi nyata, ini akan menjadi email/UID
+  String _username = '';
   String _password = '';
   bool _loading = false;
 
@@ -25,12 +25,13 @@ class _LoginScreenState extends State<LoginScreen> {
     final ok = await auth.login(_username, _password);
     setState(() => _loading = false);
 
-    if (ok) {
+    if (ok && mounted) {
       if (Navigator.canPop(context)) Navigator.pop(context);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-            content: Text('Login gagal. Periksa Username dan Password.')),
+          content: Text('Login gagal. Periksa Username dan Password.'),
+        ),
       );
     }
   }
@@ -38,66 +39,120 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final auth = Provider.of<AuthProvider>(context);
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Login Akun')),
-      body: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              TextFormField(
-                decoration: const InputDecoration(
-                  labelText: 'Username',
-                  border: OutlineInputBorder(),
+      body: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 24),
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Colors.white,
+              Color.fromARGB(255, 201, 155, 75),
+            ],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        child: Center(
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                const SizedBox(height: 30),
+
+                // 🔥 ICON BULAT DI TENGAH
+                const CircleAvatar(
+                  radius: 45,
+                  backgroundColor: Colors.white,
+                  child: Icon(
+                    Icons.person,
+                    size: 50,
+                    color: Colors.orange,
+                  ),
                 ),
-                onSaved: (v) => _username = v ?? '',
-                validator: (v) =>
-                    (v == null || v.isEmpty) ? 'Masukkan username' : null,
-              ),
-              const SizedBox(height: 15),
-              TextFormField(
-                decoration: const InputDecoration(
-                  labelText: 'Password',
-                  border: OutlineInputBorder(),
-                ),
-                obscureText: true,
-                onSaved: (v) => _password = v ?? '',
-                validator: (v) =>
-                    (v == null || v.isEmpty) ? 'Masukkan password' : null,
-              ),
-              const SizedBox(height: 30),
-              // Tombol Login
-              _loading
-                  ? const Center(child: CircularProgressIndicator())
-                  : ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 15),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8)),
-                      ),
-                      onPressed: () => _submitLogin(auth),
-                      child: const Text(
-                        'Login',
-                        style: TextStyle(fontSize: 16),
+
+                const SizedBox(height: 25),
+
+                // 📦 CARD LOGIN
+                Card(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  elevation: 8,
+                  child: Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        children: [
+                          TextFormField(
+                            decoration: const InputDecoration(
+                              labelText: 'Username',
+                              prefixIcon: Icon(Icons.person),
+                              border: OutlineInputBorder(),
+                            ),
+                            onSaved: (v) => _username = v ?? '',
+                            validator: (v) => (v == null || v.isEmpty)
+                                ? 'Masukkan username'
+                                : null,
+                          ),
+                          const SizedBox(height: 15),
+                          TextFormField(
+                            decoration: const InputDecoration(
+                              labelText: 'Password',
+                              prefixIcon: Icon(Icons.lock),
+                              border: OutlineInputBorder(),
+                            ),
+                            obscureText: true,
+                            onSaved: (v) => _password = v ?? '',
+                            validator: (v) => (v == null || v.isEmpty)
+                                ? 'Masukkan password'
+                                : null,
+                          ),
+                          const SizedBox(height: 25),
+                          _loading
+                              ? const CircularProgressIndicator()
+                              : ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    minimumSize:
+                                        const Size(double.infinity, 50),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                  ),
+                                  onPressed: () => _submitLogin(auth),
+                                  child: const Text(
+                                    'Login',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      color: Colors.orange,
+                                    ),
+                                  ),
+                                ),
+                        ],
                       ),
                     ),
-              const SizedBox(height: 20),
-              const Divider(),
-              const SizedBox(height: 20),
-              // Tombol Buat Akun
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pushNamed(RegisterScreen.routeName);
-                },
-                child: const Text(
-                  'Belum punya akun? Buat Akun di sini',
-                  style: TextStyle(color: Colors.blueGrey, fontSize: 14),
+                  ),
                 ),
-              ),
-            ],
+
+                const SizedBox(height: 25),
+
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pushNamed(RegisterScreen.routeName);
+                  },
+                  child: const Text(
+                    'Belum punya akun? Daftar di sini',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 14,
+                      decoration: TextDecoration.underline,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 40),
+              ],
+            ),
           ),
         ),
       ),
