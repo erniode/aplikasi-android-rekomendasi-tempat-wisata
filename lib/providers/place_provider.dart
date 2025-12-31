@@ -1,10 +1,15 @@
 import 'package:flutter/foundation.dart';
 import '../models/place.dart';
+import '../data/dummy_place.dart';
 
-class PlaceProvider extends ChangeNotifier {
-  List<Place> _places = dummyPlaces;
+class PlaceProvider with ChangeNotifier {
+  List<Place> _places = List.from(dummyPlaces);
+  final List<Place> _favorites = [];
+  final List<Place> _visited = [];
 
   List<Place> get places => _places;
+  List<Place> get favorites => _favorites;
+  List<Place> get visited => _visited;
 
   Place? findById(int id) {
     try {
@@ -31,27 +36,24 @@ class PlaceProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
-}
 
-List<Place> dummyPlaces = [
-  Place(
-    id: 1,
-    title: "Pantai Natsepa",
-    description: "Pantai berpasir putih dekat Ambon dengan pemandangan indah",
-    image: "assets/images/natsepa.jpeg",
-    lat: -3.686,
-    lng: 128.282,
-    category: "pantai",
-    visits: 100,
-  ),
-  Place(
-    id: 2,
-    title: "Bukit Paralayang Airlouw",
-    description: "Tempat lihat sunset yang indah",
-    image: "assets/images/paralayang.jpg",
-    lat: -3.686,
-    lng: 128.282,
-    category: "Dataran tinggi",
-    visits: 100,
-  ),
-];
+  bool isFavorite(Place place) => _favorites.any((p) => p.id == place.id);
+
+  void toggleFavorite(Place place) {
+    if (isFavorite(place)) {
+      _favorites.removeWhere((p) => p.id == place.id);
+    } else {
+      _favorites.add(place);
+    }
+    notifyListeners();
+  }
+
+  bool isVisited(Place place) => _visited.any((p) => p.id == place.id);
+
+  void markAsVisited(Place place) {
+    if (!isVisited(place)) {
+      _visited.add(place);
+      notifyListeners();
+    }
+  }
+}

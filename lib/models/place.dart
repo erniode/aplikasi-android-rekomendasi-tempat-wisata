@@ -7,6 +7,8 @@ class Place {
   final double lng;
   final String category;
   final int visits;
+  final String openingHours;
+  final String bestMonth;
 
   Place({
     required this.id,
@@ -17,5 +19,7 @@ class Place {
     required this.lng,
     required this.category,
     required this.visits,
+    required this.openingHours,
+    required this.bestMonth,
   });
 }

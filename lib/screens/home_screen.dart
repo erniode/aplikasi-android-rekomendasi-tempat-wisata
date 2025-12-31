@@ -15,59 +15,61 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
 
-  // Daftar tabs dideklarasikan di sini
-  // Perhatikan: const pada HomePageContent dan ProfileScreen masih bisa digunakan
-  // jika mereka benar-benar const, tetapi const pada CategoryScreen dihilangkan.
   final List<Widget> tabs = [
     const HomePageContent(),
-    const VisitedScreen(), // Menggunakan const jika widget tidak menerima argumen dinamis
-    CategoryScreen(), // Hapus const: Karena widget ini menggunakan Provider
+    const VisitedScreen(),
+    CategoryScreen(),
     const ProfileScreen(),
   ];
 
   @override
   Widget build(BuildContext context) {
-    // Tidak perlu mendeklarasikan tabs lagi di dalam build, karena sudah dideklarasikan di atas.
-    // Namun, jika kamu ingin mendeklarasikannya di sini agar lebih lokal:
-    /*
-    final tabs = [
-      const HomePageContent(),
-      const VisitedScreen(),
-      CategoryScreen(), 
-      const ProfileScreen(),
-    ];
-    */
-
     return Scaffold(
       body: tabs[_currentIndex],
+
+      // === BOTTOM NAVIGATION ===
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
-        onTap: (i) {
-          setState(() => _currentIndex = i);
+        onTap: (index) {
+          setState(() => _currentIndex = index);
         },
-        selectedItemColor: Colors.orange,
-        unselectedItemColor: Colors.grey,
-        showUnselectedLabels: true,
         type: BottomNavigationBarType.fixed,
+        selectedItemColor: const Color(0xFF0066CC),
+        unselectedItemColor: Colors.grey,
+        backgroundColor: Colors.white,
+        elevation: 8,
+        showUnselectedLabels: true,
+        selectedFontSize: 12,
+        unselectedFontSize: 12,
+        selectedLabelStyle: const TextStyle(
+          fontWeight: FontWeight.w600,
+          color: Color(0xFF0066CC),
+        ),
+        unselectedLabelStyle: const TextStyle(
+          fontWeight: FontWeight.w500,
+          color: Colors.grey,
+        ),
         items: const [
           BottomNavigationBarItem(
-              icon: Icon(Icons.home, size: 20), label: 'Beranda'),
-          BottomNavigationBarItem(
-            icon: Icon(
-              Icons.check_circle,
-              size: 20,
-            ),
-            label: 'Sudah dikunjungi',
+            icon: Icon(Icons.home_outlined),
+            activeIcon: Icon(Icons.home),
+            label: 'Beranda',
           ),
           BottomNavigationBarItem(
-            icon: Icon(
-              Icons.category,
-              size: 20,
-            ),
+            icon: Icon(Icons.check_circle_outline),
+            activeIcon: Icon(Icons.check_circle),
+            label: 'Dikunjungi',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.category_outlined),
+            activeIcon: Icon(Icons.category),
             label: 'Kategori',
           ),
           BottomNavigationBarItem(
-              icon: Icon(Icons.person, size: 20), label: 'Profil'),
+            icon: Icon(Icons.person_outline),
+            activeIcon: Icon(Icons.person),
+            label: 'Profil',
+          ),
         ],
       ),
     );
